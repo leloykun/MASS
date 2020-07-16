@@ -227,6 +227,8 @@ def get_parser():
     # saving to cloud
     parser.add_argument("--gcloud_filename", type=str, default="checkpoint.pth",
                         help="Filename when saving to gcloud")
+    parser.add_argument("--gcloud_use_periodic_save", type=bool_flag, default=False,
+                        help="Use periodic save point instead of checkpoint to save to Gcloud")
 
     return parser
 
@@ -349,8 +351,13 @@ def main(params):
         trainer.save_periodic()
         trainer.end_epoch(scores)
 
-        checkpoint_path = os.path.join(trainer.params.dump_path, 'periodic-%i.pth' % (trainer.epoch-1))
-        run_command("gsutil cp {} gs://shopee-title-translation/mass/models/{}".format(checkpoint_path, params.gcloud_filename))
+        if trainer.params.gcloud_use_periodic_save:
+            checkpoint_path = os.path.join(trainer.params.dump_path, 'periodic-%i.pth' % (trainer.epoch-1))
+            run_command("gsutil cp {} gs://shopee-title-translation/mass/models/{}".format(checkpoint_path, params.gcloud_filename))
+            run_command("rm {}".format(checkpoint_path))
+        else:
+            checkpoint_path = os.path.join(trainer.params.dump_path, 'checkpoint.pth')
+            run_command("gsutil cp {} gs://shopee-title-translation/mass/models/{}".format(checkpoint_path, params.gcloud_filename))
 
 
 if __name__ == '__main__':
