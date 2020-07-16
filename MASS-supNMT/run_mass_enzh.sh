@@ -3,13 +3,13 @@ save_dir=checkpoints/mass/pretraining
 user_dir=mass
 
 seed=1234
-max_tokens=512 #2048 # for 16GB GPUs
+max_tokens=2048 # for 16GB GPUs
 update_freq=1
 dropout=0.1
-attention_heads=6 #16
-embed_dim=384 #1024
-ffn_embed_dim=1536 #4096
-encoder_layers=6 #10
+attention_heads=16
+embed_dim=1024
+ffn_embed_dim=4096
+encoder_layers=10
 decoder_layers=6
 word_mask=0.3
 
