@@ -24,9 +24,13 @@ python3 train.py                                     \
 --tokens_per_batch 3000                              \
 \
 --optimizer adam_inverse_sqrt,beta1=0.9,beta2=0.98,lr=0.0001 \
---epoch_size 50000                                   \
+--epoch_size $1                                      \
 --max_epoch 100                                      \
 \
 --mass_steps 'en,zh'                                 \
 \
+--reload_model $2                                    \
+\
 --eval_bleu true                                     \
+\
+--gcloud_filename $3                                 \

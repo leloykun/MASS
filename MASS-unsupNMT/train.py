@@ -8,6 +8,7 @@
 # NOTICE FILE in the root directory of this source tree.
 #
 
+import os
 import json
 import argparse
 import torch
@@ -23,6 +24,12 @@ from src.evaluation.evaluator import SingleEvaluator, EncDecEvaluator
 
 import apex
 from src.fp16 import network_to_half
+import subprocess
+
+
+def run_command(command):
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    return process.communicate()
 
 
 def get_parser():
@@ -217,6 +224,10 @@ def get_parser():
     parser.add_argument("--master_port", type=int, default=-1,
                         help="Master port (for multi-node SLURM jobs)")
 
+    # saving to cloud
+    parser.add_argument("--gcloud_filename", type=str, default="checkpoint.pth",
+                        help="Filename when saving to gcloud")
+
     return parser
 
 
@@ -337,6 +348,9 @@ def main(params):
         trainer.save_best_model(scores)
         trainer.save_periodic()
         trainer.end_epoch(scores)
+
+        checkpoint_path = os.path.join(trainer.params.dump_path, 'periodic-%i.pth' % (trainer.epoch-1))
+        run_command("gsutil cp {} gs://shopee-title-translation/mass/models/{}".format(checkpoint_path, params.gcloud_filename))
 
 
 if __name__ == '__main__':

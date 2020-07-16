@@ -744,7 +744,7 @@ class EncDecTrainer(Trainer):
 
     def unfold_segments(self, segs):
         """Unfold the random mask segments, for example:
-           The shuffle segment is [2, 0, 0, 2, 0], 
+           The shuffle segment is [2, 0, 0, 2, 0],
            so the masked segment is like:
            [1, 1, 0, 0, 1, 1, 0]
            [1, 2, 3, 4, 5, 6, 7] (positions)
@@ -778,7 +778,7 @@ class EncDecTrainer(Trainer):
             shuf_segs = segs + unmasked_tokens
 
         random.shuffle(shuf_segs)
-        
+
         if p >= 0.8:
             shuf_segs = segs[0:1] + shuf_segs
         elif p >= 0.6:
@@ -798,7 +798,7 @@ class EncDecTrainer(Trainer):
         """ Restricted mask sents
             if span_len is equal to 1, it can be viewed as
             discrete mask;
-            if span_len -> inf, it can be viewed as 
+            if span_len -> inf, it can be viewed as
             pure sentence mask
         """
         if span_len <= 0:
@@ -807,10 +807,10 @@ class EncDecTrainer(Trainer):
         positions, inputs, targets, outputs, = [], [], [], []
         mask_len = round(len(x[:, 0]) * self.params.word_mass)
         len2 = [mask_len for i in range(l.size(0))]
-        
+
         unmasked_tokens = [0 for i in range(l[0] - mask_len - 1)]
         segs = self.get_segments(mask_len, span_len)
-        
+
         for i in range(l.size(0)):
             words = np.array(x[:l[i], i].tolist())
             shuf_segs = self.shuffle_segments(segs, unmasked_tokens)
@@ -839,7 +839,7 @@ class EncDecTrainer(Trainer):
         pred_mask = y != self.params.pad_index
         y = y.masked_select(pred_mask)
         return x1, l1, x2, l2, y, pred_mask, pos
-    
+
     def mt_step(self, lang1, lang2, lambda_coeff):
         """
         Machine translation step.
@@ -976,22 +976,22 @@ class EncDecTrainer(Trainer):
 
         langs1 = x1.clone().fill_(lang1_id)
         langs2 = x2.clone().fill_(lang2_id)
-        
+
         x1, len1, langs1, x2, len2, langs2, y, positions = to_cuda(x1, len1, langs1, x2, len2, langs2, y, positions)
 
         enc1 = self.encoder('fwd', x=x1, lengths=len1, langs=langs1, causal=False)
         enc1 = enc1.transpose(0, 1)
-        
+
         enc_mask = x1.ne(params.mask_index)
         enc_mask = enc_mask.transpose(0, 1)
-        
-        dec2 = self.decoder('fwd', 
-                            x=x2, lengths=len2, langs=langs2, causal=True, 
+
+        dec2 = self.decoder('fwd',
+                            x=x2, lengths=len2, langs=langs2, causal=True,
                             src_enc=enc1, src_len=len1, positions=positions, enc_mask=enc_mask)
-        
+
         _, loss = self.decoder('predict', tensor=dec2, pred_mask=pred_mask, y=y, get_scores=False)
         self.stats[('MA-%s' % lang)].append(loss.item())
-        
+
         self.optimize(loss, ['encoder', 'decoder'])
 
         # number of processed sentences / words
