@@ -19,7 +19,7 @@ do
 
   fairseq-preprocess \
   --task cross_lingual_lm \
-  --srcdict $mono_data_dir/dict.$lg.txt \
+  --srcdict $mono_data_dir/vocab.$lg \
   --only-source \
   --trainpref $mono_data_dir/train \
   --validpref $mono_data_dir/valid \
@@ -41,5 +41,5 @@ fairseq-preprocess \
   --source-lang en --target-lang zh \
   --trainpref $para_data_dir/train --validpref $para_data_dir/valid \
   --destdir $save_dir \
-  --srcdict $para_data_dir/dict.en.txt \
-  --tgtdict $para_data_dir/dict.zh.txt
+  --srcdict $para_data_dir/vocab.en \
+  --tgtdict $para_data_dir/vocab.zh

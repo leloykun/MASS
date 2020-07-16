@@ -168,7 +168,7 @@ class XTransformerModel(BaseFairseqModel):
         for lang in langs:
             if len(embed_tokens) == 0 or args.share_all_embeddings is False:
                 embed_token = build_embedding(
-                    task.dicts[lang], args.encoder_embed_dim, args.encoder_embed_path        
+                    task.dicts[lang], args.encoder_embed_dim, args.encoder_embed_path
                 )
                 embed_tokens[lang] = embed_token
             else:
@@ -187,7 +187,7 @@ class XTransformerModel(BaseFairseqModel):
                 decoder = XTransformerDecoder(args, task.dicts[lang], decoder_embed_tokens)
                 decoders[lang] = decoder
         return XTransformerModel(encoders, decoders, args.eval_lang_pair)
-    
+
     @property
     def decoder(self):
         return self.decoders[self.target_lang]

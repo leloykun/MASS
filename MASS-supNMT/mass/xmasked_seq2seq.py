@@ -79,7 +79,7 @@ class XMassTranslationTask(FairseqTask):
                             help='source language (only needed for inference)')
         parser.add_argument('-t', '--target-lang', default=None, metavar='TARGET',
                             help='target language (only needed for inference)')
-        
+
         parser.add_argument('--lm-bias', action='store_true',
                             help='append language model bias')
 
@@ -109,7 +109,7 @@ class XMassTranslationTask(FairseqTask):
     def setup_task(cls, args, **kwargs):
         dicts, training = cls.prepare(args, **kwargs)
         return cls(args, dicts, training)
-    
+
     @classmethod
     def prepare(cls, args, **kwargs):
         args.left_pad_source = options.eval_bool(args.left_pad_source)
@@ -117,7 +117,7 @@ class XMassTranslationTask(FairseqTask):
         s = args.word_mask_keep_rand.split(',')
         s = [float(x) for x in s]
         setattr(args, 'pred_probs', torch.FloatTensor([s[0], s[1], s[2]]))
-        
+
         args.langs = sorted(args.langs.split(','))
         args.source_langs = sorted(args.source_langs.split(','))
         args.target_langs = sorted(args.target_langs.split(','))
@@ -126,7 +126,7 @@ class XMassTranslationTask(FairseqTask):
             assert lang in args.langs
         for lang in args.target_langs:
             assert lang in args.langs
-        
+
         args.mass_steps = [s for s in args.mass_steps.split(',') if len(s) > 0]
         args.mt_steps   = [s for s in args.mt_steps.split(',')   if len(s) > 0]
         args.memt_steps = [s for s in args.memt_steps.split(',') if len(s) > 0]
@@ -136,7 +136,7 @@ class XMassTranslationTask(FairseqTask):
             for lang_pair in args.mass_steps
             if len(lang_pair) > 0
         ]
-        
+
         mono_lang_pairs = []
         for lang in mono_langs:
             mono_lang_pairs.append('{}-{}'.format(lang, lang))
@@ -144,7 +144,7 @@ class XMassTranslationTask(FairseqTask):
 
         args.para_lang_pairs = list(set([
             '-'.join(sorted(lang_pair.split('-')))
-            for lang_pair in set(args.mt_steps + args.memt_steps) if 
+            for lang_pair in set(args.mt_steps + args.memt_steps) if
             len(lang_pair) > 0
         ]))
 
@@ -202,7 +202,7 @@ class XMassTranslationTask(FairseqTask):
         return dicts, training
 
     def load_dataset(self, split, **kwargs):
-        
+
         def split_exists(split, lang):
             filename = os.path.join(self.args.data, '{}.{}'.format(split, lang))
             if self.args.raw_text and IndexedRawTextDataset.exists(filename):
@@ -229,7 +229,7 @@ class XMassTranslationTask(FairseqTask):
                 else:
                     return IndexedCachedDataset(path, fix_lua_indexing=True)
             return None
-        
+
         src_mono_datasets = {}
         for lang_pair in self.args.mono_lang_pairs:
             lang = lang_pair.split('-')[0]
@@ -238,7 +238,7 @@ class XMassTranslationTask(FairseqTask):
                 prefix = os.path.join(self.args.data, '{}.{}'.format(split, lang))
             else:
                 raise FileNotFoundError('Not Found available {} dataset for ({}) lang'.format(split, lang))
-            
+
             src_mono_datasets[lang_pair] = indexed_dataset(prefix, self.dicts[lang])
             print('| monolingual {}-{}: {} examples'.format(split, lang, len(src_mono_datasets[lang_pair])))
 
@@ -250,7 +250,7 @@ class XMassTranslationTask(FairseqTask):
                 raise FileNotFoundError('Not Found available {}-{} para dataset for ({}) lang'.format(split, key, src))
             if not split_para_exists(split, key, tgt):
                 raise FileNotFoundError('Not Found available {}-{} para dataset for ({}) lang'.format(split, key, tgt))
-            
+
             prefix = os.path.join(self.args.data, '{}.{}'.format(split, key))
             if '{}.{}'.format(key, src) not in src_para_datasets:
                 src_para_datasets[key + '.' + src] = indexed_dataset(prefix + '.' + src, self.dicts[src])
@@ -355,7 +355,7 @@ class XMassTranslationTask(FairseqTask):
             ] + [
                 (_get_mt_dataset_key(lang_pair), eval_para_dataset[lang_pair])
                 for lang_pair in eval_para_dataset.keys()
-            ]),      
+            ]),
             eval_key=None if self.training else self.args.eval_lang_pair
         )
 
@@ -414,7 +414,7 @@ class XMassTranslationTask(FairseqTask):
                 if sample_key not in sample or sample[sample_key] is None or len(sample[sample_key]) == 0:
                     continue
                     #return agg_loss, agg_sample_size, agg_logging_output
-                
+
                 src_key, tgt_key = lang_pair.split('-')
                 sample[sample_key]['net_input']['src_key'] = src_key
                 sample[sample_key]['net_input']['tgt_key'] = tgt_key

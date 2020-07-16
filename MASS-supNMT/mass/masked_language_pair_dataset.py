@@ -46,11 +46,11 @@ class MaskedLanguagePairDataset(FairseqDataset):
         else:
             src_item = self.src[index]
             src_list = [self.vocab.eos_index] + src_item.tolist()
-     
+
             start, length = self.mask_interval(len(src_list))
             output = src_list[start     : start + length].copy()
             _target = src_list[start - 1 : start + length - 1].copy()
-            
+
             target = []
             for w in _target:
                 target.append(self.random_word(w, self.pred_probs))
@@ -61,7 +61,7 @@ class MaskedLanguagePairDataset(FairseqDataset):
                     w = self.mask_word(w)
                 if w is not None:
                     source.append(w)
-        
+
         assert len(target) == len(output)
         return {
             'id': index,
@@ -80,7 +80,7 @@ class MaskedLanguagePairDataset(FairseqDataset):
                 [s[key] for s in samples],
                 pad_idx, eos_idx, left_pad,
             )
-        
+
         id = torch.LongTensor([s['id'] for s in samples])
         src_tokens = merge('source', left_pad=self.left_pad_source)
         src_lengths = torch.LongTensor([s['source'].numel() for s in samples])
@@ -109,20 +109,20 @@ class MaskedLanguagePairDataset(FairseqDataset):
         }
         batch['net_input']['prev_output_tokens'] = prev_output_tokens
         return batch
-        
+
 
     def collater(self, samples):
         return self._collate(
-            samples, 
+            samples,
             pad_idx=self.vocab.pad(),
             eos_idx=self.vocab.eos(),
             segment_label=self.lang_id,
         )
 
     def get_dummy_batch(
-        self, 
-        num_tokens, 
-        max_positions, 
+        self,
+        num_tokens,
+        max_positions,
         tgt_len=128
     ):
         if isinstance(max_positions, float) or isinstance(max_positions, int):
@@ -133,10 +133,10 @@ class MaskedLanguagePairDataset(FairseqDataset):
         return self.collater([
             {
                 'id': i,
-                'source': source, 
+                'source': source,
                 'target': target,
                 'output': target,
-            } 
+            }
             for i in range(bsz)
         ])
 
@@ -151,7 +151,7 @@ class MaskedLanguagePairDataset(FairseqDataset):
         else:
             indices = np.arange(len(self))
         return indices[np.argsort(self.sizes[indices], kind='mergesort')]
-    
+
     @property
     def supports_prefetch(self):
         return (

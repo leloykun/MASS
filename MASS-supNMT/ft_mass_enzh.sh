@@ -2,7 +2,7 @@ data_dir=data/processed
 save_dir=checkpoints/mass/fine-tune
 user_dir=mass
 
-model=zhen_mass_pre-training.pt 
+model=zhen_mass_pre-training.pt
 
 seed=1234
 max_tokens=2048
