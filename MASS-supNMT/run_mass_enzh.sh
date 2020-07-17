@@ -16,12 +16,12 @@ word_mask=0.3
 mkdir -p $save_dir
 
 fairseq-train $data_dir \
-	--user-dir $user_dir \
+    --user-dir $user_dir \
     --task xmasked_seq2seq \
-	--source-langs en,zh \
-	--target-langs en,zh \
+    --source-langs en,zh \
+    --target-langs en,zh \
     --langs en,zh \
-	--arch xtransformer \
+    --arch xtransformer \
     --mass_steps en-en,zh-zh \
     --memt_steps en-zh,zh-en \
     --save-dir $save_dir \
@@ -41,5 +41,5 @@ fairseq-train $data_dir \
     --keep-interval-updates 100 --save-interval-updates 3000  --log-interval 50 \
     --share-decoder-input-output-embed \
     --valid-lang-pairs en-zh \
-	--word_mask ${word_mask} \
-	--ddp-backend=no_c10d
+    --word_mask ${word_mask} \
+    --ddp-backend=no_c10d

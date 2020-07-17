@@ -23,6 +23,7 @@ do
   --only-source \
   --trainpref $mono_data_dir/train \
   --validpref $mono_data_dir/valid \
+  --testpref $mono_data_dir/test \
   --destdir $save_dir \
   --workers 20 \
   --source-lang $lg
@@ -40,6 +41,7 @@ fairseq-preprocess \
   --task xmasked_seq2seq \
   --source-lang en --target-lang zh \
   --trainpref $para_data_dir/train --validpref $para_data_dir/valid \
+  --testpref $para_data_dir/test \
   --destdir $save_dir \
   --srcdict $para_data_dir/vocab.en \
   --tgtdict $para_data_dir/vocab.zh
