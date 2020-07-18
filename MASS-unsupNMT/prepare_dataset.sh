@@ -174,15 +174,18 @@ echo "[====================================================]"
 echo "[====================================================]"
 
 # binarize data
-echo "Binarizing $SRC data..."
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $SRC_TRAIN_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $SRC_VALID_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $SRC_TEST_BPE
-
-echo "Binarizing $TGT data..."
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $TGT_TRAIN_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $TGT_VALID_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $TGT_TEST_BPE
+if ! [[ -f "$SRC_TRAIN_BPE" && -f "$SRC_VALID_BPE" && -f "$SRC_TEST_BPE" ]]; then
+  echo "Binarizing $SRC data..."
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $SRC_TRAIN_BPE
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $SRC_VALID_BPE
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $SRC_TEST_BPE
+fi
+if ! [[ -f "$TGT_TRAIN_BPE" && -f "$TGT_VALID_BPE" && -f "$TGT_TEST_BPE" ]]; then
+  echo "Binarizing $TGT data..."
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $TGT_TRAIN_BPE
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $TGT_VALID_BPE
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $TGT_TEST_BPE
+fi
 echo "$SRC binarized data in: $SRC_TRAIN_BPE.pth, $SRC_VALID_BPE.pth, $SRC_TEST_BPE.pth"
 echo "$TGT binarized data in: $TGT_TRAIN_BPE.pth, $TGT_VALID_BPE.pth, $TGT_TEST_BPE.pth"
 
@@ -194,36 +197,51 @@ echo "[====================================================]"
 
 ### PARALLEL DATA
 
-echo "Tokenizing valid and test data..."
-eval "cat $PARA_SRC_TRAIN | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $SRC > $PARA_SRC_TRAIN_TOK"
-eval "cat $PARA_TGT_TRAIN | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $TGT > $PARA_TGT_TRAIN_TOK"
-eval "cat $PARA_SRC_VALID | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $SRC > $PARA_SRC_VALID_TOK"
-eval "cat $PARA_TGT_VALID | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $TGT > $PARA_TGT_VALID_TOK"
-eval "cat $PARA_SRC_TEST  | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $SRC > $PARA_SRC_TEST_TOK"
-eval "cat $PARA_TGT_TEST  | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $TGT > $PARA_TGT_TEST_TOK"
+if ! [[ -f "$PARA_SRC_TRAIN_TOK" && -f "$PARA_SRC_VALID_TOK" && -f "$PARA_SRC_TEST_TOK" ]]; then
+  echo "Tokenize $SRC parallel data..."
+  eval "cat $PARA_SRC_TRAIN | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $SRC > $PARA_SRC_TRAIN_TOK"
+  eval "cat $PARA_SRC_VALID | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $SRC > $PARA_SRC_VALID_TOK"
+  eval "cat $PARA_SRC_TEST  | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $SRC > $PARA_SRC_TEST_TOK"
+fi
+if ! [[ -f "$PARA_SRC_TRAIN_TOK" && -f "$PARA_SRC_VALID_TOK" && -f "$PARA_SRC_TEST_TOK" ]]; then
+  echo "Tokenize $TGT parallel data..."
+  eval "cat $PARA_TGT_TRAIN | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $TGT > $PARA_TGT_TRAIN_TOK"
+  eval "cat $PARA_TGT_VALID | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $TGT > $PARA_TGT_VALID_TOK"
+  eval "cat $PARA_TGT_TEST  | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | python3 tools/lowercase_and_remove_accent.py | tools/tokenize.sh $TGT > $PARA_TGT_TEST_TOK"
+fi
 echo "[====================================================]"
 echo "[====================================================]"
 
 echo "Applying BPE to valid and test files..."
-$FASTBPE applybpe $PARA_SRC_TRAIN_BPE $PARA_SRC_TRAIN_TOK $BPE_CODES $SRC_VOCAB
-$FASTBPE applybpe $PARA_TGT_TRAIN_BPE $PARA_TGT_TRAIN_TOK $BPE_CODES $TGT_VOCAB
-$FASTBPE applybpe $PARA_SRC_VALID_BPE $PARA_SRC_VALID_TOK $BPE_CODES $SRC_VOCAB
-$FASTBPE applybpe $PARA_TGT_VALID_BPE $PARA_TGT_VALID_TOK $BPE_CODES $TGT_VOCAB
-$FASTBPE applybpe $PARA_SRC_TEST_BPE  $PARA_SRC_TEST_TOK  $BPE_CODES $SRC_VOCAB
-$FASTBPE applybpe $PARA_TGT_TEST_BPE  $PARA_TGT_TEST_TOK  $BPE_CODES $TGT_VOCAB
+if ! [[ -f "$PARA_SRC_TRAIN_BPE" && -f "$PARA_SRC_VALID_BPE" && -f "$PARA_SRC_TEST_BPE" ]]; then
+  echo "Applying $SRC parallel BPE codes..."
+  $FASTBPE applybpe $PARA_SRC_TRAIN_BPE $PARA_SRC_TRAIN_TOK $BPE_CODES $SRC_VOCAB
+  $FASTBPE applybpe $PARA_SRC_VALID_BPE $PARA_SRC_VALID_TOK $BPE_CODES $SRC_VOCAB
+  $FASTBPE applybpe $PARA_SRC_TEST_BPE  $PARA_SRC_TEST_TOK  $BPE_CODES $SRC_VOCAB
+fi
+if ! [[ -f "$PARA_TGT_TRAIN_BPE" && -f "$PARA_TGT_VALID_BPE" && -f "$PARA_TGT_TEST_BPE" ]]; then
+  echo "Applying $TGT parallel BPE codes..."
+  $FASTBPE applybpe $PARA_TGT_TRAIN_BPE $PARA_TGT_TRAIN_TOK $BPE_CODES $TGT_VOCAB
+  $FASTBPE applybpe $PARA_TGT_VALID_BPE $PARA_TGT_VALID_TOK $BPE_CODES $TGT_VOCAB
+  $FASTBPE applybpe $PARA_TGT_TEST_BPE  $PARA_TGT_TEST_TOK  $BPE_CODES $TGT_VOCAB
+fi
 echo "[====================================================]"
 echo "[====================================================]"
 
-echo "Binarizing data..."
-rm -f $PARA_SRC_TRAIN_BPE.pth $PARA_TGT_TRAIN_BPE.pth $PARA_SRC_VALID_BPE.pth $PARA_TGT_VALID_BPE.pth $PARA_SRC_TEST_BPE.pth $PARA_TGT_TEST_BPE.pth
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_SRC_TRAIN_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_TGT_TRAIN_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_SRC_VALID_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_TGT_VALID_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_SRC_TEST_BPE
-python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_TGT_TEST_BPE
-
-
+if ! [[ -f "$PARA_SRC_TRAIN_BPE.pth" && -f "$PARA_SRC_VALID_BPE.pth" && -f "$PARA_SRC_TEST_BPE.pth" ]]; then
+  echo "Binarizing $SRC parallel data..."
+  # rm -f $PARA_SRC_TRAIN_BPE.pth $PARA_SRC_VALID_BPE.pth $PARA_SRC_TEST_BPE.pth
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_SRC_TRAIN_BPE
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_SRC_VALID_BPE
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_SRC_TEST_BPE
+fi
+if ! [[ -f "$PARA_TGT_TRAIN_BPE.pth" && -f "$PARA_TGT_VALID_BPE.pth" && -f "$PARA_TGT_TEST_BPE.pth" ]]; then
+  echo "Binarizing $TGT parallel data..."
+  # rm -f $PARA_TGT_TRAIN_BPE.pth $PARA_TGT_VALID_BPE.pth $PARA_TGT_TEST_BPE.pth
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_TGT_TRAIN_BPE
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_TGT_VALID_BPE
+  python3 $MAIN_PATH/preprocess.py $FULL_VOCAB $PARA_TGT_TEST_BPE
+fi
 echo "[====================================================]"
 echo "[====================================================]"
 echo "[====================================================]"

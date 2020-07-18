@@ -337,3 +337,4 @@ MASS-unsupNMT/tools/wmt16-scripts
 MASS-unsupNMT/dumped
 MASS-unsupNMT/data/data_v*.zip
 MASS-unsupNMT/models
+MASS-supNMT/models
