@@ -335,6 +335,5 @@ MASS-unsupNMT/tools/stanford-segmenter*
 MASS-unsupNMT/tools/wikiextractor
 MASS-unsupNMT/tools/wmt16-scripts
 MASS-unsupNMT/dumped
-MASS-unsupNMT/data/data_v1.zip
-MASS-unsupNMT/data/data_v2.zip
+MASS-unsupNMT/data/data_v*.zip
 MASS-unsupNMT/models
