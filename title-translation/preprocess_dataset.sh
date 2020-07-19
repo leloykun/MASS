@@ -9,6 +9,7 @@ SUP_PATH=$PWD/../MASS-supNMT
 DATA_PATH=$PWD/raw
 SAVE_PATH=$PWD/processed
 UNSUP_PROC_PATH=$UNSUP_PATH/data/processed/$TGT-$SRC
+SUP_PROC_PATH=$SUP_PATH/data/processed
 
 mkdir $SAVE_PATH
 
@@ -106,5 +107,8 @@ else
 fi
 echo "[====================================================]"
 echo "[====================================================]"
+
+cp $SUP_PROC_PATH/dict.en.txt $SAVE_PATH/dict.en.txt
+cp $SUP_PROC_PATH/dict.zh.txt $SAVE_PATH/dict.zh.txt
 
 echo "DONE!!"
