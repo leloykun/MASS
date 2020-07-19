@@ -27,7 +27,7 @@ TOKENIZER=$MOSES/scripts/tokenizer/tokenizer.perl
 QUERY=$DATA_PATH/test.$SRC
 QUERY_CLEAN=$QUERY.prep
 QUERY_TOK=$QUERY.tok
-QUERY_BPE=$SAVE_PATH/test.$SRC
+QUERY_BPE=$SAVE_PATH/test.$SRC-$TGT.$SRC
 
 # BPE / vocab files
 BPE_CODES=$UNSUP_PROC_PATH/codes
@@ -95,7 +95,7 @@ if [[ -f "$QUERY_BPE.pth" ]]; then
     --task cross_lingual_lm \
     --srcdict $SRC_VOCAB \
     --only-source \
-    --testpref $SAVE_PATH/test \
+    --testpref $SAVE_PATH/test.$SRC-$TGT \
     --destdir $SAVE_PATH/ \
     --workers 20 \
     --source-lang $SRC
