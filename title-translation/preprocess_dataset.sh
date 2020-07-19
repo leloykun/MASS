@@ -1,5 +1,5 @@
-SRC=zh
-TGT=en
+SRC=en
+TGT=zh
 
 N_THREADS=8
 
@@ -8,7 +8,7 @@ SUP_PATH=$PWD/../MASS-supNMT
 
 DATA_PATH=$PWD/raw
 SAVE_PATH=$PWD/processed
-UNSUP_PROC_PATH=$UNSUP_PATH/data/processed/$TGT-$SRC
+UNSUP_PROC_PATH=$UNSUP_PATH/data/processed/$SRC-$TGT
 SUP_PROC_PATH=$SUP_PATH/data/processed
 
 mkdir $SAVE_PATH
@@ -38,7 +38,7 @@ TGT_QUERY_BPE=$SAVE_PATH/test.$SRC-$TGT.$TGT
 BPE_CODES=$UNSUP_PROC_PATH/codes
 SRC_VOCAB=$UNSUP_PROC_PATH/vocab.$SRC
 TGT_VOCAB=$UNSUP_PROC_PATH/vocab.$TGT
-FULL_VOCAB=$UNSUP_PROC_PATH/vocab.$TGT-$SRC
+FULL_VOCAB=$UNSUP_PROC_PATH/vocab.$SRC-$TGT
 
 
 echo $TOOLS_PATH
@@ -64,14 +64,14 @@ echo "[====================================================]"
 # tokenize queries
 if ! [[ -f "$SRC_QUERY_TOK" ]]; then
   echo "Tokenizing $SRC..."
-  eval "cat $SRC_QUERY_CLEAN | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | \
+  eval "cat $SRC_QUERY_CLEAN | $REPLACE_UNICODE_PUNCT | $NORM_PUNC -l $SRC | $REM_NON_PRINT_CHAR | \
+  python3 $TOOLS_PATH/lowercase_and_remove_accent.py | \
+  $TOKENIZER -no-escape -threads $N_THREADS -l $SRC > $SRC_QUERY_TOK"
+
+  eval "cat $TGT_QUERY_CLEAN | $REPLACE_UNICODE_PUNCT | $NORM_PUNC | $REM_NON_PRINT_CHAR | \
   python3 $TOOLS_PATH/lowercase_and_remove_accent.py | \
   $TOOLS_PATH/stanford-segmenter-*/segment.sh pku /dev/stdin UTF-8 0 | \
-  $REPLACE_UNICODE_PUNCT | $NORM_PUNC -l $SRC | $REM_NON_PRINT_CHAR > $SRC_QUERY_TOK"
-
-  eval "cat $TGT_QUERY_CLEAN | $REPLACE_UNICODE_PUNCT | $NORM_PUNC -l $TGT | $REM_NON_PRINT_CHAR | \
-  python3 $TOOLS_PATH/lowercase_and_remove_accent.py | \
-  $TOKENIZER -no-escape -threads $N_THREADS -l $TGT > $TGT_QUERY_TOK"
+  $REPLACE_UNICODE_PUNCT | $NORM_PUNC -l $TGT | $REM_NON_PRINT_CHAR > $TGT_QUERY_TOK"
 fi
 echo "$SRC query data tokenized in: $SRC_QUERY_TOK"
 echo "$TGT query data tokenized in: $TGT_QUERY_TOK"
